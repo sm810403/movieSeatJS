@@ -1,10 +1,12 @@
-const seats = document.querySelectorAll('.seat:not(.o-seat)');
+const seats = document.querySelectorAll('.row .seat:not(.o-seat)');
 const tickets = document.querySelector('.tickets');
 const total = document.querySelector('.total');
 const movieSelect = document.getElementById('movie-select')
 
-const ticketPrice = +movieSelect.value;
-console.log(typeof ticketPrice)
+let ticketPrice = +movieSelect.value;
+
+
+//select seat
 seats.forEach((seat)=>{
     seat.addEventListener('click',(e)=>{
         if (e.target.classList.contains('seat')&&!e.target.classList.contains('o-seat')){
@@ -14,14 +16,35 @@ seats.forEach((seat)=>{
         
     }) 
 })
-let totalSeats = [];
-function updateUI(){
-    const selectedSeat = document.querySelectorAll('.row.seat.s-seat');
-    const selectedSeatCount = totalSeats.length;
-    console.log(selectedSeatCount)
-    tickets.innerText = selectedSeatCount;
-    total.innerText = selectedSeatCount*ticketPrice;
+//change ticket value
+movieSelect.addEventListener('change',(e)=>{
+    let newValue = e.target.value;
+    ticketPrice = +newValue;
+    setMovieData(e.target.selectedIndex, e.target.value); 
+    updateUI();
+})
+//get value and index data
+function setMovieData(ticketValue, ticketIndex){
+    localStorage.setItem('selectedMovieIndex', ticketIndex);
+    localStorage.setItem('selectedMovieValue', ticketValue);
 }
-// movieSelect.addEventListener('change',function(){
 
-// })
+function setDataUI(){
+    const selectedSeats = JSON.parse(localStorage.getItem(selectedSeats));
+    if (selectedSeats !== null){
+        updateUI();
+    }
+}
+
+//update UI whenever selecting seat or changing value
+function updateUI(){
+    const selectedSeats = document.querySelectorAll('.row .seat.s-seat');
+    const seatIndex = [...selectedSeats].map(seat=> [...seats].indexOf(seat));
+
+    localStorage.setItem('selectedSeats', JSON.stringify(seatIndex));
+
+    const numOfSelected = selectedSeats.length
+    tickets.innerText = numOfSelected;
+    total.innerText = numOfSelected*ticketPrice;
+}
+
